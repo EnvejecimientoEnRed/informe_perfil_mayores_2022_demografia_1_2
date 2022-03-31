@@ -24,7 +24,7 @@ export function initChart(iframe) {
     //Creación de otros elementos relativos al gráfico que no requieran lectura previa de datos > Selectores múltiples o simples, timelines, etc 
 
     //Lectura de datos
-    d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_2/main/data/piramide_21_urbano_rural_absolutos_v2.csv', function(error,data) {
+    d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_2/main/data/piramide_2021_urbano_rural.csv', function(error,data) {
         if (error) throw error;
 
         //SELECCIÓN DE ELEMENTOS
@@ -45,12 +45,16 @@ export function initChart(iframe) {
         /////////////////VISUALIZACIÓN DE PIRÁMIDES///////////////
 
         ///Dividir los datos
-        let dataUrbano = data.filter(function(item) { if (item.Tipo == 'espana_urbana') { return item; }});
-        let dataRural = data.filter(function(item) { if (item.Tipo == 'espana_rural') { return item; }});
-        let dataNacional = data.filter(function(item) { if (item.Tipo == 'nacional') { return item; }});
+        let currentType = 'porcentajes';
+        let dataAbsolutoUrbano = data.filter(function(item) { if (item.Tipo == 'espana_urbana' && item.Data == 'Absolutos') { return item; }});
+        let dataAbsolutoRural = data.filter(function(item) { if (item.Tipo == 'espana_rural' && item.Data == 'Absolutos') { return item; }});
+        let dataAbsolutoNacional = data.filter(function(item) { if (item.Tipo == 'nacional' && item.Data == 'Absolutos') { return item; }});
+        let dataRelativoUrbano = data.filter(function(item) { if (item.Tipo == 'espana_urbana' && item.Data == 'Porcentajes') { return item; }});
+        let dataRelativoRural = data.filter(function(item) { if (item.Tipo == 'espana_rural' && item.Data == 'Porcentajes') { return item; }});
+        let dataRelativoNacional = data.filter(function(item) { if (item.Tipo == 'nacional' && item.Data == 'Porcentajes') { return item; }});
 
-        ///Valores iniciales de altura, anchura y márgenes > Primer desarrollo solo con valores absolutos
-        let margin = {top: 20, right: 30, bottom: 40, left: 70},
+        ///Valores iniciales de altura, anchura y márgenes > Primer desarrollo solo con Valores absolutos
+        let margin = {top: 5, right: 25, bottom: 20, left: 90},
             width = document.getElementById('chart').clientWidth - margin.left - margin.right,
             height = document.getElementById('chart').clientHeight - margin.top - margin.bottom;
 
@@ -62,15 +66,15 @@ export function initChart(iframe) {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         let x = d3.scaleLinear()
-            .domain([-600000,600000])
+            .domain([-500000,500000])
             .range([0,width]);
 
         let xM = d3.scaleLinear()
-            .domain([600000,0])
+            .domain([500000,0])
             .range([0, width / 2]);
 
         let xF = d3.scaleLinear()
-            .domain([0,600000])
+            .domain([0,500000])
             .range([width / 2, width]);
 
         svg.append("g")
@@ -78,53 +82,177 @@ export function initChart(iframe) {
             .call(d3.axisBottom(x));
 
         let y = d3.scaleBand()
-                .range([ 0, height ])
-                .domain(d3.range(101).reverse())
-                .padding(.1);
+            .range([ 0, height ])
+            .domain(dataAbsolutoUrbano.map(function(item) { return item.Edad; }).reverse())
+            .padding(.1);
 
         svg.append("g")
             .call(d3.axisLeft(y));
 
         function initPyramid() { //Pirámides urbano vs rural
-
-            //Urbana
-            svg.append("g")
-                .selectAll("rect")
-                .data(dataUrbano)
-                .enter()
-                .append("rect")
-                .attr('class', 'prueba')
-                .attr("fill", function(d) { if(d.sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                .style('opacity', '0.9')
-                .attr("x", function(d) { if(d.sexo == 'Hombres') { return xM(d.valor); } else { return xF(0); }})
-                .attr("y", function(d) { return y(d.edades); })
-                .attr("width", function(d) { if(d.sexo == 'Hombres') { return xM(0) - xM(d.valor); } else { return xF(d.valor) - xF(0); }})
-                .attr("height", y.bandwidth());
-
             //Rural
             svg.append("g")
                 .selectAll("rect")
-                .data(dataRural)
+                .data(dataRelativoRural)
                 .enter()
                 .append("rect")
                 .attr('class', 'prueba')
-                .attr("fill", function(d) { if(d.sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                .style('opacity', '0.6')
-                .attr("x", function(d) { if(d.sexo == 'Hombres') { return xM(d.valor); } else { return xF(0); }})
-                .attr("y", function(d) { return y(d.edades); })
-                .attr("width", function(d) { if(d.sexo == 'Hombres') { return xM(0) - xM(d.valor); } else { return xF(d.valor) - xF(0); }})
+                .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                .style('opacity', '1')
+                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                .attr("y", function(d) { return y(d.Edad); })
+                .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
                 .attr("height", y.bandwidth());
-
+            
+            //Urbana
+            svg.append("g")
+                .selectAll("rect")
+                .data(dataRelativoUrbano)
+                .enter()
+                .append("rect")
+                .attr('class', 'prueba')
+                .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                .style('opacity', '0.8')
+                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                .attr("y", function(d) { return y(d.Edad); })
+                .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                .attr("height", y.bandwidth());
         }
 
         function setPyramids(types) {
-            console.log(types);
+            svg.selectAll('.prueba')
+                .remove();
+
+            if(currentType == 'absolutos') {
+
+                if(types.indexOf('urbano') != -1) {
+                    svg.append("g")
+                    .selectAll("rect")
+                    .data(dataAbsolutoUrbano)
+                    .enter()
+                    .append("rect")
+                    .attr('class', 'prueba')
+                    .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                    .style('opacity', '0.8')
+                    .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                    .attr("y", function(d) { return y(d.Edad); })
+                    .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                    .attr("height", y.bandwidth());
+                }
+    
+                if(types.indexOf('rural') != -1) {
+                    svg.append("g")
+                        .selectAll("rect")
+                        .data(dataAbsolutoRural)
+                        .enter()
+                        .append("rect")
+                        .attr('class', 'prueba')
+                        .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .style('opacity', '1')
+                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                        .attr("y", function(d) { return y(d.Edad); })
+                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                        .attr("height", y.bandwidth());
+                }
+    
+                if(types.indexOf('nacional') != -1) {
+                    svg.append("g")
+                        .selectAll("rect")
+                        .data(dataAbsolutoNacional)
+                        .enter()
+                        .append("rect")
+                        .attr('class', 'prueba')
+                        .attr("fill", 'none')
+                        .attr("stroke", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .attr("stroke-width", '2px')
+                        .style('opacity', '0.9')
+                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                        .attr("y", function(d) { return y(d.Edad); })
+                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                        .attr("height", y.bandwidth());
+                }
+
+            } else {
+
+                if(types.indexOf('urbano') != -1) {
+                    svg.append("g")
+                    .selectAll("rect")
+                    .data(dataRelativoUrbano)
+                    .enter()
+                    .append("rect")
+                    .attr('class', 'prueba')
+                    .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                    .style('opacity', '0.8')
+                    .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                    .attr("y", function(d) { return y(d.Edad); })
+                    .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                    .attr("height", y.bandwidth());
+                }
+    
+                if(types.indexOf('rural') != -1) {
+                    svg.append("g")
+                        .selectAll("rect")
+                        .data(dataRelativoRural)
+                        .enter()
+                        .append("rect")
+                        .attr('class', 'prueba')
+                        .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .style('opacity', '1')
+                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                        .attr("y", function(d) { return y(d.Edad); })
+                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                        .attr("height", y.bandwidth());
+                }
+    
+                if(types.indexOf('nacional') != -1) {
+                    svg.append("g")
+                        .selectAll("rect")
+                        .data(dataRelativoNacional)
+                        .enter()
+                        .append("rect")
+                        .attr('class', 'prueba')
+                        .attr("fill", 'none')
+                        .attr("stroke", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .attr("stroke-width", '2px')
+                        .style('opacity', '0.9')
+                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                        .attr("y", function(d) { return y(d.Edad); })
+                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                        .attr("height", y.bandwidth());
+                }
+
+            }
         }
 
         ////////////
         ////////////RESTO
         ////////////
         initPyramid();
+
+        //Uso de dos botones para ofrecer datos absolutos y en miles
+        document.getElementById('data_absolutos').addEventListener('click', function() {
+            //Cambiamos color botón
+            document.getElementById('data_porcentajes').classList.remove('active');
+            document.getElementById('data_absolutos').classList.add('active');
+
+            //Cambiamos gráfico
+            setPyramids(types);
+
+            //Cambiamos valor actual
+            currentType = 'absolutos';
+        });
+
+        document.getElementById('data_porcentajes').addEventListener('click', function() {
+            //Cambiamos color botón
+            document.getElementById('data_porcentajes').classList.add('active');
+            document.getElementById('data_absolutos').classList.remove('active');
+
+            //Cambiamos gráfico
+            setPyramids(types);
+
+            //Cambiamos valor actual
+            currentType = 'porcentajes';
+        });
 
         //Animación del gráfico
         document.getElementById('replay').addEventListener('click', function() {
