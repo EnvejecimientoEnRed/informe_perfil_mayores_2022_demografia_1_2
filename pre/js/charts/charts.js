@@ -28,15 +28,16 @@ export function initChart(iframe) {
         if (error) throw error;
 
         //SELECCIÓN DE ELEMENTOS
+        let selectedArr = ['urbano','rural'];
         let mySellect = sellect("#my-element", {
-            originList: ['nacional','urbano','rural'],
+            originList: ['urbano','rural'],
             destinationList: ['urbano','rural'],
             onInsert: onChange,
             onRemove: onChange
         });
 
         function onChange() {
-            let selectedArr = mySellect.getSelected();
+            selectedArr = mySellect.getSelected();
             setPyramids(selectedArr);
         }
 
@@ -66,19 +67,20 @@ export function initChart(iframe) {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         let x = d3.scaleLinear()
-            .domain([-500000,500000])
+            .domain([-1,1])
             .range([0,width]);
 
         let xM = d3.scaleLinear()
-            .domain([500000,0])
+            .domain([1,0])
             .range([0, width / 2]);
 
         let xF = d3.scaleLinear()
-            .domain([0,500000])
+            .domain([0,1])
             .range([width / 2, width]);
 
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
+            .attr('class','x-axis')
             .call(d3.axisBottom(x));
 
         let y = d3.scaleBand()
@@ -92,22 +94,9 @@ export function initChart(iframe) {
         function initPyramid() { //Pirámides urbano vs rural
             //Rural
             svg.append("g")
+                .attr('class', 'chart-g')
                 .selectAll("rect")
                 .data(dataRelativoRural)
-                .enter()
-                .append("rect")
-                .attr('class', 'prueba')
-                .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                .style('opacity', '1')
-                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                .attr("y", function(d) { return y(d.Edad); })
-                .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                .attr("height", y.bandwidth());
-            
-            //Urbana
-            svg.append("g")
-                .selectAll("rect")
-                .data(dataRelativoUrbano)
                 .enter()
                 .append("rect")
                 .attr('class', 'prueba')
@@ -117,55 +106,60 @@ export function initChart(iframe) {
                 .attr("y", function(d) { return y(d.Edad); })
                 .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
                 .attr("height", y.bandwidth());
+            
+            //Urbana
+            svg.append("g")
+                .attr('class', 'chart-g')
+                .selectAll("rect")
+                .data(dataRelativoUrbano)
+                .enter()
+                .append("rect")
+                .attr('class', 'prueba')
+                .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                .style('opacity', '0.6')
+                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                .attr("y", function(d) { return y(d.Edad); })
+                .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                .attr("height", y.bandwidth());
         }
 
         function setPyramids(types) {
-            svg.selectAll('.prueba')
+            svg.selectAll('.chart-g')
                 .remove();
 
             if(currentType == 'absolutos') {
 
+                x.domain([-500000,500000]);
+                svg.select(".x-axis").call(d3.axisBottom(x));                
+                xM.domain([500000,0]);
+                xF.domain([0,500000]);
+
                 if(types.indexOf('urbano') != -1) {
                     svg.append("g")
-                    .selectAll("rect")
-                    .data(dataAbsolutoUrbano)
-                    .enter()
-                    .append("rect")
-                    .attr('class', 'prueba')
-                    .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                    .style('opacity', '0.8')
-                    .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                    .attr("y", function(d) { return y(d.Edad); })
-                    .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                    .attr("height", y.bandwidth());
-                }
-    
-                if(types.indexOf('rural') != -1) {
-                    svg.append("g")
+                        .attr('class', 'chart-g')
                         .selectAll("rect")
-                        .data(dataAbsolutoRural)
+                        .data(dataAbsolutoUrbano)
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
                         .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                        .style('opacity', '1')
+                        .style('opacity', '0.5')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
                         .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
                         .attr("height", y.bandwidth());
                 }
     
-                if(types.indexOf('nacional') != -1) {
+                if(types.indexOf('rural') != -1) {
                     svg.append("g")
+                        .attr('class', 'chart-g')
                         .selectAll("rect")
-                        .data(dataAbsolutoNacional)
+                        .data(dataAbsolutoRural)
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
-                        .attr("fill", 'none')
-                        .attr("stroke", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                        .attr("stroke-width", '2px')
-                        .style('opacity', '0.9')
+                        .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .style('opacity', '0.8')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
                         .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
@@ -174,53 +168,42 @@ export function initChart(iframe) {
 
             } else {
 
+                x.domain([-1,1]);
+                svg.select(".x-axis").call(d3.axisBottom(x));
+                xM.domain([1,0]);
+                xF.domain([0,1]);
+
                 if(types.indexOf('urbano') != -1) {
                     svg.append("g")
-                    .selectAll("rect")
-                    .data(dataRelativoUrbano)
-                    .enter()
-                    .append("rect")
-                    .attr('class', 'prueba')
-                    .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                    .style('opacity', '0.8')
-                    .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                    .attr("y", function(d) { return y(d.Edad); })
-                    .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                    .attr("height", y.bandwidth());
+                        .attr('class', 'chart-g')
+                        .selectAll("rect")
+                        .data(dataRelativoUrbano)
+                        .enter()
+                        .append("rect")
+                        .attr('class', 'prueba')
+                        .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .style('opacity', '0.5')
+                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                        .attr("y", function(d) { return y(d.Edad); })
+                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                        .attr("height", y.bandwidth());
                 }
     
                 if(types.indexOf('rural') != -1) {
                     svg.append("g")
+                        .attr('class', 'chart-g')
                         .selectAll("rect")
                         .data(dataRelativoRural)
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
                         .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                        .style('opacity', '1')
+                        .style('opacity', '0.8')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
                         .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
                         .attr("height", y.bandwidth());
                 }
-    
-                if(types.indexOf('nacional') != -1) {
-                    svg.append("g")
-                        .selectAll("rect")
-                        .data(dataRelativoNacional)
-                        .enter()
-                        .append("rect")
-                        .attr('class', 'prueba')
-                        .attr("fill", 'none')
-                        .attr("stroke", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                        .attr("stroke-width", '2px')
-                        .style('opacity', '0.9')
-                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                        .attr("y", function(d) { return y(d.Edad); })
-                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                        .attr("height", y.bandwidth());
-                }
-
             }
         }
 
@@ -235,11 +218,11 @@ export function initChart(iframe) {
             document.getElementById('data_porcentajes').classList.remove('active');
             document.getElementById('data_absolutos').classList.add('active');
 
-            //Cambiamos gráfico
-            setPyramids(types);
-
             //Cambiamos valor actual
             currentType = 'absolutos';
+
+            //Cambiamos gráfico
+            setPyramids(selectedArr);            
         });
 
         document.getElementById('data_porcentajes').addEventListener('click', function() {
@@ -247,11 +230,11 @@ export function initChart(iframe) {
             document.getElementById('data_porcentajes').classList.add('active');
             document.getElementById('data_absolutos').classList.remove('active');
 
-            //Cambiamos gráfico
-            setPyramids(types);
-
             //Cambiamos valor actual
             currentType = 'porcentajes';
+
+            //Cambiamos gráfico
+            setPyramids(selectedArr);            
         });
 
         //Animación del gráfico
