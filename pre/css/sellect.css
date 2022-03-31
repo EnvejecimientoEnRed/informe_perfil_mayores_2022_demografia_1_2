@@ -4,17 +4,18 @@
  * @author Lidia Freitas <lidiafreitas.me@gmail.com>
  */
 
-.sellect-element{
+ .sellect-element{
     border: none;
     height: 18px;
     background: none;
 }
 
+
 .sellect-container{
     border: 1px solid #ccc;
     padding: 5px 5px 0 5px;
     border-radius: 3px;
-    margin-top: 12px;
+    margin-top: 5px;
     position: relative;
 }
 
@@ -31,9 +32,6 @@
     padding: 0 5px 2px;
     display: inline-block;
 }
-.sellect-destination-list .sellect-item .sellect-close-icon{
-    margin-left: 5px;
-}
 
 .sellect-origin-list{
     overflow: auto;
@@ -43,9 +41,10 @@
 }
 
 .sellect-origin-list.open{
-    max-height: 90px;
+    max-height: 138px;
     opacity: 1;
 }
+
 
 .sellect-origin-list .sellect-item{
     display: block;

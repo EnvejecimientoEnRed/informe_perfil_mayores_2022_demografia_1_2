@@ -20,11 +20,12 @@
                     <h1 class="title" id="title">Figura 1.2. Comparativa de pirámides de población de España urbana y de España rural, 2021</h1>
                     <h2 class="subtitle" id="subtitle">Datos en unidades (personas)</h2>
                 </div>
+                <input type="text" id="my-element">
                 <div class="chart__logics">
                     <div class="chart__legend">
-                        <span class="chart__legend--item first">Ley. 1</span>
-                        <span class="chart__legend--item second">Ley. 2</span>
-                        <span class="chart__legend--item third">Ley. 3</span>
+                        <span class="chart__legend--item first">España urbana</span>
+                        <span class="chart__legend--item second">España rural</span>
+                        <span class="chart__legend--item third">Media nacional</span>
                     </div>
                     <div class="chart__animate" id="replay">
                         <button class="btn btn__animate">
@@ -32,25 +33,7 @@
                             <span>Animar gráfico</span>
                         </button>
                     </div>                  
-                </div>
-                <div class="sellect-container">
-                    <div class="sellect-destination-list">
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">grapefruit<i class="fa fa-times sellect-close-icon"></i></span>
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">papaya<i class="fa fa-times sellect-close-icon"></i></span>
-                    </div>
-                    <input type="text" id="my-element" class="sellect-element">
-                    <div class="sellect-origin-list">
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">apple<i class="fa fa-times sellect-close-icon"></i></span>
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">pineapple<i class="fa fa-times sellect-close-icon"></i></span>
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">watermelon<i class="fa fa-times sellect-close-icon"></i></span>
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">melon<i class="fa fa-times sellect-close-icon"></i></span>
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">grape<i class="fa fa-times sellect-close-icon"></i></span>
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">orange<i class="fa fa-times sellect-close-icon"></i></span>
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">guava<i class="fa fa-times sellect-close-icon"></i></span>
-                        <span class="sellect-trigger sellect-item" style="display: inherit;">banana<i class="fa fa-times sellect-close-icon"></i></span>
-                    </div>
-                    <i class="fa fa-chevron-down sellect-arrow-icon"></i>
-                </div>
+                </div>                
                 <div class="chart__viz" id="chart"></div>
                 <!-- Pie de gráfico -->
                 <div class="chart__footer">
@@ -115,13 +98,10 @@
             <p class="chart__tooltip--text"></p>
         </div>  
     </div>
-    <!-- Prueba para sellect.js -->
-    <script type="text/javascript" src=""></script>
     <!-- Uso de PYMJS para alturas dinámicas -->
     <script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>
     <script>
         const pymChild = new pym.Child();
-        let isChartActive = false;
     </script>
 </body>
 </html>

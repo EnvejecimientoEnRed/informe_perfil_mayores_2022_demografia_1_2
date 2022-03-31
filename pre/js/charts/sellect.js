@@ -52,7 +52,7 @@
         var listItem = document.createElement('span');
         var listIcon = document.createElement('i');
         listItem.classList.add('sellect-trigger', 'sellect-item');
-        listIcon.classList.add('fa', 'fa-times', 'sellect-close-icon');
+        listIcon.classList.add('fa', 'fa-select', 'fa-times', 'sellect-close-icon');
 
         listItem.innerHTML = item;
         listItem.appendChild(listIcon);

@@ -1,5 +1,6 @@
 //Desarrollo de las visualizaciones
 import * as d3 from 'd3';
+require('./sellect');
 import { numberWithCommas2 } from '../helpers';
 //import { getInTooltip, getOutTooltip, positionTooltip } from './modules/tooltip';
 import { setChartHeight } from '../modules/height';
@@ -23,34 +24,107 @@ export function initChart(iframe) {
     //Creación de otros elementos relativos al gráfico que no requieran lectura previa de datos > Selectores múltiples o simples, timelines, etc 
 
     //Lectura de datos
-    d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_2/main/data/piramide_2021_urbano-rural_nacional.csv', function(error,data) {
+    d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_2/main/data/piramide_21_urbano_rural_absolutos_v2.csv', function(error,data) {
         if (error) throw error;
 
-        /////////
-        
-        /////////
-        let my = prueba();
-        console.log(my);
-
-
         //SELECCIÓN DE ELEMENTOS
-        let mySellect = prueba.sellect("#my-element", {
-            originList: ['banana', 'apple', 'pineapple', 'papaya', 'grape', 'orange', 'grapefruit', 'guava', 'watermelon', 'melon'],
-            destinationList: ['banana', 'papaya', 'grape', 'orange', 'guava'],
-            onInsert: onInsertPrueba,
-            onRemove: onRemovePrueba
+        let mySellect = sellect("#my-element", {
+            originList: ['nacional','urbano','rural'],
+            destinationList: ['urbano','rural'],
+            onInsert: onChange,
+            onRemove: onChange
         });
 
-        function onInsertPrueba(event,item) {
-            console.log(event,item,"insert");
+        function onChange() {
+            let selectedArr = mySellect.getSelected();
+            setPyramids(selectedArr);
         }
 
-        function onRemovePrueba(event,item) {
-            console.log(event,item,"remove");
+        mySellect.init();
+
+        /////////////////VISUALIZACIÓN DE PIRÁMIDES///////////////
+
+        ///Dividir los datos
+        let dataUrbano = data.filter(function(item) { if (item.Tipo == 'espana_urbana') { return item; }});
+        let dataRural = data.filter(function(item) { if (item.Tipo == 'espana_rural') { return item; }});
+        let dataNacional = data.filter(function(item) { if (item.Tipo == 'nacional') { return item; }});
+
+        ///Valores iniciales de altura, anchura y márgenes > Primer desarrollo solo con valores absolutos
+        let margin = {top: 20, right: 30, bottom: 40, left: 70},
+            width = document.getElementById('chart').clientWidth - margin.left - margin.right,
+            height = document.getElementById('chart').clientHeight - margin.top - margin.bottom;
+
+        let svg = d3.select("#chart")
+            .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        let x = d3.scaleLinear()
+            .domain([-600000,600000])
+            .range([0,width]);
+
+        let xM = d3.scaleLinear()
+            .domain([600000,0])
+            .range([0, width / 2]);
+
+        let xF = d3.scaleLinear()
+            .domain([0,600000])
+            .range([width / 2, width]);
+
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        let y = d3.scaleBand()
+                .range([ 0, height ])
+                .domain(d3.range(101).reverse())
+                .padding(.1);
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        function initPyramid() { //Pirámides urbano vs rural
+
+            //Urbana
+            svg.append("g")
+                .selectAll("rect")
+                .data(dataUrbano)
+                .enter()
+                .append("rect")
+                .attr('class', 'prueba')
+                .attr("fill", function(d) { if(d.sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                .style('opacity', '0.9')
+                .attr("x", function(d) { if(d.sexo == 'Hombres') { return xM(d.valor); } else { return xF(0); }})
+                .attr("y", function(d) { return y(d.edades); })
+                .attr("width", function(d) { if(d.sexo == 'Hombres') { return xM(0) - xM(d.valor); } else { return xF(d.valor) - xF(0); }})
+                .attr("height", y.bandwidth());
+
+            //Rural
+            svg.append("g")
+                .selectAll("rect")
+                .data(dataRural)
+                .enter()
+                .append("rect")
+                .attr('class', 'prueba')
+                .attr("fill", function(d) { if(d.sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                .style('opacity', '0.6')
+                .attr("x", function(d) { if(d.sexo == 'Hombres') { return xM(d.valor); } else { return xF(0); }})
+                .attr("y", function(d) { return y(d.edades); })
+                .attr("width", function(d) { if(d.sexo == 'Hombres') { return xM(0) - xM(d.valor); } else { return xF(d.valor) - xF(0); }})
+                .attr("height", y.bandwidth());
+
         }
 
-        console.log(mySellect.init());
+        function setPyramids(types) {
+            console.log(types);
+        }
 
+        ////////////
+        ////////////RESTO
+        ////////////
+        initPyramid();
 
         //Animación del gráfico
         document.getElementById('replay').addEventListener('click', function() {
@@ -58,7 +132,7 @@ export function initChart(iframe) {
         });
 
         //Iframe
-        setFixedIframeUrl('comparativa_piramides_espana_rural');
+        setFixedIframeUrl('informe_perfil_mayores_2022_demografia_1_2','comparativa_piramides_espana_rural');
 
         //Redes sociales > Antes tenemos que indicar cuál sería el texto a enviar
         setRRSSLinks('comparativa_piramides_espana_rural');
