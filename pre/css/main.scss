@@ -5,11 +5,19 @@
     box-sizing: border-box;
 }
 
-body, button {
+body {
     font-family: 'Montserrat', sans-serif;
 
     //Tamaño de elementos para utilizar EMs posteriormente
     font-size: 16px;
+    line-height: 1.25em;
+}
+
+button {
+    font-family: 'Montserrat', sans-serif;
+
+    //Tamaño de elementos para utilizar EMs posteriormente
+    font-size: 0.85em;
     line-height: 1.25em;
 }
 
@@ -126,7 +134,7 @@ body, button {
         //Visualización
         &__viz {
             height: auto;
-            margin-top: 12px;
+            margin-top: 8px;
 
             .chart--text {
                 display: flex;
@@ -220,7 +228,6 @@ body, button {
     width: 100%;
     max-width: calc(100% - 100px);
     min-height: 65px;
-    margin-bottom: 8px;
 
     .title {
         font-size: 1em;
@@ -431,11 +438,5 @@ body, button {
 
     .b-rrss {
         width: 80%;
-    }
-}
-
-@media screen and (max-width: 475px) {
-    body {
-        font-size: 14.5px;
     }
 }
