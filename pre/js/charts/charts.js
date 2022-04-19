@@ -18,7 +18,7 @@ COLOR_GREY_2 = '#A3A3A3',
 COLOR_ANAG__PRIM_1 = '#BA9D5F', 
 COLOR_ANAG_PRIM_2 = '#9E6C51',
 COLOR_ANAG_PRIM_3 = '#9E3515',
-COLOR_ANAG_ANAG_1 = '#1C5A5E';
+COLOR_ANAG_COMP_1 = '#1C5A5E';
 
 export function initChart(iframe) {
     //Creación de otros elementos relativos al gráfico que no requieran lectura previa de datos > Selectores múltiples o simples, timelines, etc 
