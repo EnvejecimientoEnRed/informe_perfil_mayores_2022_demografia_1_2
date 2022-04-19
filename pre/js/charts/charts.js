@@ -1,7 +1,7 @@
 //Desarrollo de las visualizaciones
 import * as d3 from 'd3';
 require('./sellect');
-import { numberWithCommas2 } from '../helpers';
+import { numberWithCommas3 } from '../helpers';
 //import { getInTooltip, getOutTooltip, positionTooltip } from './modules/tooltip';
 import { setChartHeight } from '../modules/height';
 import { setChartCanvas, setChartCanvasImage } from '../modules/canvas-image';
@@ -57,7 +57,9 @@ export function initChart(iframe) {
         ///Valores iniciales de altura, anchura y márgenes > Primer desarrollo solo con Valores absolutos
         let margin = {top: 5, right: 25, bottom: 20, left: 70},
             width = document.getElementById('chart').clientWidth - margin.left - margin.right,
-            height = document.getElementById('chart').clientHeight - margin.top - margin.bottom;
+            height = width * 0.66 - margin.top - margin.bottom;
+
+        console.log(width, height);
 
         let svg = d3.select("#chart")
             .append("svg")
@@ -79,8 +81,17 @@ export function initChart(iframe) {
             .range([width / 2, width]);
 
         let xAxis = function(svg) {
-            svg.call(d3.axisBottom(x).ticks(6).tickFormat(function(d) { return Math.abs(d); }));
-            
+            svg.call(d3.axisBottom(x).ticks(6).tickFormat(function(d) {console.log(d); return numberWithCommas3(Math.abs(d)); }));
+            svg.call(function(g){
+                g.selectAll('.tick line')
+                    .attr('class', function(d,i) {
+                        if (d == 0) {
+                            return 'line-special';
+                        }
+                    })
+                    .attr('y1', '0')
+                    .attr('y2', `-${height}`)
+            });
         }
 
         svg.append("g")
@@ -134,8 +145,6 @@ export function initChart(iframe) {
         }
 
         function setPyramids(types) {
-            console.log(types);
-
             svg.selectAll('.chart-g')
                 .remove();
 
@@ -186,8 +195,7 @@ export function initChart(iframe) {
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
-                        .attr('fill','none')
-                        .attr("stroke", COLOR_ANAG_PRIM_3)
+                        .attr("fill", COLOR_ANAG_PRIM_3)
                         .style('opacity', '0.8')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
@@ -242,8 +250,7 @@ export function initChart(iframe) {
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
-                        .attr('fill','none')
-                        .attr("stroke", COLOR_ANAG_PRIM_3)
+                        .attr("fill", COLOR_ANAG_PRIM_3)
                         .style('opacity', '0.5')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
