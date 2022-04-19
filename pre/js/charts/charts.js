@@ -10,15 +10,15 @@ import { setFixedIframeUrl } from './chart_helpers';
 
 //Colores fijos
 const COLOR_PRIMARY_1 = '#F8B05C', 
-COLOR_PRIMARY_2 = '#E37A42', 
-COLOR_ANAG_1 = '#D1834F', 
-COLOR_ANAG_2 = '#BF2727', 
+COLOR_PRIMARY_2 = '#E37A42',
 COLOR_COMP_1 = '#528FAD', 
-COLOR_COMP_2 = '#AADCE0', 
-COLOR_GREY_1 = '#B5ABA4', 
-COLOR_GREY_2 = '#64605A', 
-COLOR_OTHER_1 = '#B58753', 
-COLOR_OTHER_2 = '#731854';
+COLOR_COMP_2 = '#AADCE0',
+COLOR_GREY_1 = '#D6D6D6', 
+COLOR_GREY_2 = '#A3A3A3',
+COLOR_ANAG__PRIM_1 = '#BA9D5F', 
+COLOR_ANAG_PRIM_2 = '#9E6C51',
+COLOR_ANAG_PRIM_3 = '#9E3515',
+COLOR_ANAG_ANAG_1 = '#1C5A5E';
 
 export function initChart(iframe) {
     //Creación de otros elementos relativos al gráfico que no requieran lectura previa de datos > Selectores múltiples o simples, timelines, etc 
@@ -30,7 +30,7 @@ export function initChart(iframe) {
         //SELECCIÓN DE ELEMENTOS
         let selectedArr = ['urbano','rural'];
         let mySellect = sellect("#my-element", {
-            originList: ['urbano','rural'],
+            originList: ['urbano','rural','nacional'],
             destinationList: ['urbano','rural'],
             onInsert: onChange,
             onRemove: onChange
@@ -55,7 +55,7 @@ export function initChart(iframe) {
         let dataRelativoNacional = data.filter(function(item) { if (item.Tipo == 'nacional' && item.Data == 'Porcentajes') { return item; }});
 
         ///Valores iniciales de altura, anchura y márgenes > Primer desarrollo solo con Valores absolutos
-        let margin = {top: 5, right: 25, bottom: 20, left: 90},
+        let margin = {top: 5, right: 25, bottom: 20, left: 70},
             width = document.getElementById('chart').clientWidth - margin.left - margin.right,
             height = document.getElementById('chart').clientHeight - margin.top - margin.bottom;
 
@@ -78,20 +78,30 @@ export function initChart(iframe) {
             .domain([0,1])
             .range([width / 2, width]);
 
+        let xAxis = function(svg) {
+            svg.call(d3.axisBottom(x).ticks(6).tickFormat(function(d) { return Math.abs(d); }));
+            
+        }
+
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
             .attr('class','x-axis')
-            .call(d3.axisBottom(x));
+            .call(xAxis);
 
         let y = d3.scaleBand()
             .range([ 0, height ])
             .domain(dataAbsolutoUrbano.map(function(item) { return item.Edad; }).reverse())
             .padding(.1);
 
-        svg.append("g")
-            .call(d3.axisLeft(y));
+        let yAxis = function(svg) {
+            svg.call(d3.axisLeft(y).tickValues(y.domain().filter(function(d,i){ return !(i%10)})));
+            svg.call(function(g){g.selectAll('.tick line').remove()});
+        }
 
-        function initPyramid() { //Pirámides urbano vs rural
+        svg.append("g")
+            .call(yAxis);
+
+        function initPyramid() {
             //Rural
             svg.append("g")
                 .attr('class', 'chart-g')
@@ -100,7 +110,7 @@ export function initChart(iframe) {
                 .enter()
                 .append("rect")
                 .attr('class', 'prueba')
-                .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                .attr("fill", COLOR_PRIMARY_1)
                 .style('opacity', '0.8')
                 .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                 .attr("y", function(d) { return y(d.Edad); })
@@ -115,7 +125,7 @@ export function initChart(iframe) {
                 .enter()
                 .append("rect")
                 .attr('class', 'prueba')
-                .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                .attr("fill", COLOR_COMP_1)
                 .style('opacity', '0.6')
                 .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                 .attr("y", function(d) { return y(d.Edad); })
@@ -124,15 +134,33 @@ export function initChart(iframe) {
         }
 
         function setPyramids(types) {
+            console.log(types);
+
             svg.selectAll('.chart-g')
                 .remove();
 
             if(currentType == 'absolutos') {
 
                 x.domain([-500000,500000]);
-                svg.select(".x-axis").call(d3.axisBottom(x));                
+                svg.select(".x-axis").call(xAxis);                
                 xM.domain([500000,0]);
                 xF.domain([0,500000]);
+
+                if(types.indexOf('rural') != -1) {
+                    svg.append("g")
+                        .attr('class', 'chart-g')
+                        .selectAll("rect")
+                        .data(dataAbsolutoRural)
+                        .enter()
+                        .append("rect")
+                        .attr('class', 'prueba')
+                        .attr("fill", COLOR_PRIMARY_1)
+                        .style('opacity', '0.8')
+                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                        .attr("y", function(d) { return y(d.Edad); })
+                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                        .attr("height", y.bandwidth());
+                }
 
                 if(types.indexOf('urbano') != -1) {
                     svg.append("g")
@@ -142,23 +170,24 @@ export function initChart(iframe) {
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
-                        .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .attr("fill", COLOR_COMP_1)
                         .style('opacity', '0.5')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
                         .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
                         .attr("height", y.bandwidth());
-                }
-    
-                if(types.indexOf('rural') != -1) {
+                }               
+
+                if(types.indexOf('nacional') != -1) {
                     svg.append("g")
                         .attr('class', 'chart-g')
                         .selectAll("rect")
-                        .data(dataAbsolutoRural)
+                        .data(dataAbsolutoNacional)
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
-                        .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .attr('fill','none')
+                        .attr("stroke", COLOR_ANAG_PRIM_3)
                         .style('opacity', '0.8')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
@@ -169,9 +198,25 @@ export function initChart(iframe) {
             } else {
 
                 x.domain([-1,1]);
-                svg.select(".x-axis").call(d3.axisBottom(x));
+                svg.select(".x-axis").call(xAxis);
                 xM.domain([1,0]);
                 xF.domain([0,1]);
+
+                if(types.indexOf('rural') != -1) {
+                    svg.append("g")
+                        .attr('class', 'chart-g')
+                        .selectAll("rect")
+                        .data(dataRelativoRural)
+                        .enter()
+                        .append("rect")
+                        .attr('class', 'prueba')
+                        .attr("fill", COLOR_PRIMARY_1)
+                        .style('opacity', '0.8')
+                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                        .attr("y", function(d) { return y(d.Edad); })
+                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
+                        .attr("height", y.bandwidth());
+                }
 
                 if(types.indexOf('urbano') != -1) {
                     svg.append("g")
@@ -181,29 +226,31 @@ export function initChart(iframe) {
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
-                        .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
+                        .attr("fill", COLOR_COMP_1)
                         .style('opacity', '0.5')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
                         .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
                         .attr("height", y.bandwidth());
                 }
-    
-                if(types.indexOf('rural') != -1) {
+
+                if(types.indexOf('nacional') != -1) {
                     svg.append("g")
                         .attr('class', 'chart-g')
                         .selectAll("rect")
-                        .data(dataRelativoRural)
+                        .data(dataRelativoNacional)
                         .enter()
                         .append("rect")
                         .attr('class', 'prueba')
-                        .attr("fill", function(d) { if(d.Sexo == 'Hombres') { return COLOR_PRIMARY_1; } else { return COLOR_COMP_1; }})
-                        .style('opacity', '0.8')
+                        .attr('fill','none')
+                        .attr("stroke", COLOR_ANAG_PRIM_3)
+                        .style('opacity', '0.5')
                         .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                         .attr("y", function(d) { return y(d.Edad); })
                         .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
                         .attr("height", y.bandwidth());
-                }
+                }    
+                
             }
         }
 
@@ -218,6 +265,9 @@ export function initChart(iframe) {
             document.getElementById('data_porcentajes').classList.remove('active');
             document.getElementById('data_absolutos').classList.add('active');
 
+            //Cambio texto
+            document.getElementById('texto-reactivo').textContent = 'Personas';
+
             //Cambiamos valor actual
             currentType = 'absolutos';
 
@@ -229,6 +279,9 @@ export function initChart(iframe) {
             //Cambiamos color botón
             document.getElementById('data_porcentajes').classList.add('active');
             document.getElementById('data_absolutos').classList.remove('active');
+
+            //Cambio texto
+            document.getElementById('texto-reactivo').textContent = 'Porcentaje';
 
             //Cambiamos valor actual
             currentType = 'porcentajes';
