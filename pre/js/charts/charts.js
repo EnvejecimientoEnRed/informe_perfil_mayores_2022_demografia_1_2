@@ -31,7 +31,7 @@ export function initChart(iframe) {
         //SELECCIÓN DE ELEMENTOS
         let selectedArr = ['Urbana','Rural'];
         let mySellect = sellect("#my-element", {
-            originList: ['Urbana','Rural','Media nacional'],
+            originList: ['Urbana','Rural','Nacional'],
             destinationList: ['Urbana','Rural'],
             onInsert: onChange,
             onRemove: onChange
@@ -296,7 +296,7 @@ export function initChart(iframe) {
                             .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
                     }               
     
-                    if(types[i] == 'Media nacional') {
+                    if(types[i] == 'Nacional') {
                         svg.append("g")
                             .attr('class', 'chart-g')
                             .selectAll("rect")
@@ -435,7 +435,7 @@ export function initChart(iframe) {
                             .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
                     }
     
-                    if(types[i] == 'Media nacional') {
+                    if(types[i] == 'Nacional') {
                         svg.append("g")
                             .attr('class', 'chart-g')
                             .selectAll("rect")
