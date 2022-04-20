@@ -2,7 +2,7 @@
 import * as d3 from 'd3';
 require('./sellect');
 import { numberWithCommas3 } from '../helpers';
-//import { getInTooltip, getOutTooltip, positionTooltip } from './modules/tooltip';
+import { getInTooltip, getOutTooltip, positionTooltip } from '../modules/tooltip';
 import { setChartHeight } from '../modules/height';
 import { setChartCanvas, setChartCanvasImage } from '../modules/canvas-image';
 import { setRRSSLinks } from '../modules/rrss';
@@ -19,6 +19,7 @@ COLOR_ANAG__PRIM_1 = '#BA9D5F',
 COLOR_ANAG_PRIM_2 = '#9E6C51',
 COLOR_ANAG_PRIM_3 = '#9E3515',
 COLOR_ANAG_COMP_1 = '#1C5A5E';
+let tooltip = d3.select('#tooltip');
 
 export function initChart(iframe) {
     //Creación de otros elementos relativos al gráfico que no requieran lectura previa de datos > Selectores múltiples o simples, timelines, etc 
@@ -28,10 +29,10 @@ export function initChart(iframe) {
         if (error) throw error;
 
         //SELECCIÓN DE ELEMENTOS
-        let selectedArr = ['urbano','rural'];
+        let selectedArr = ['Urbana','Rural'];
         let mySellect = sellect("#my-element", {
-            originList: ['urbano','rural','nacional'],
-            destinationList: ['urbano','rural'],
+            originList: ['Urbana','Rural','Media nacional'],
+            destinationList: ['Urbana','Rural'],
             onInsert: onChange,
             onRemove: onChange
         });
@@ -57,9 +58,7 @@ export function initChart(iframe) {
         ///Valores iniciales de altura, anchura y márgenes > Primer desarrollo solo con Valores absolutos
         let margin = {top: 5, right: 25, bottom: 20, left: 70},
             width = document.getElementById('chart').clientWidth - margin.left - margin.right,
-            height = width * 0.66 - margin.top - margin.bottom;
-
-        console.log(width, height);
+            height = width * 0.67 - margin.top - margin.bottom;
 
         let svg = d3.select("#chart")
             .append("svg")
@@ -81,7 +80,7 @@ export function initChart(iframe) {
             .range([width / 2, width]);
 
         let xAxis = function(svg) {
-            svg.call(d3.axisBottom(x).ticks(6).tickFormat(function(d) {console.log(d); return numberWithCommas3(Math.abs(d)); }));
+            svg.call(d3.axisBottom(x).ticks(6).tickFormat(function(d) { return numberWithCommas3(Math.abs(d)); }));
             svg.call(function(g){
                 g.selectAll('.tick line')
                     .attr('class', function(d,i) {
@@ -123,10 +122,37 @@ export function initChart(iframe) {
                 .attr('class', 'prueba')
                 .attr("fill", COLOR_PRIMARY_1)
                 .style('opacity', '0.8')
-                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                .attr("x", x(0))
                 .attr("y", function(d) { return y(d.Edad); })
-                .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                .attr("height", y.bandwidth());
+                .attr("width", 0)
+                .attr("height", y.bandwidth())
+                .on('mouseover', function(d,i,e) {
+                    //Dibujo contorno de la rect
+                    this.style.stroke = '#000';
+                    this.style.strokeWidth = '1';
+
+                    //Texto en tooltip
+                    let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España rural</p>' + 
+                        '<p class="chart__tooltip--text">% sobre total de la España rural: ' + numberWithCommas3(parseFloat(d.Valor))+ '%</p>';
+                
+                    tooltip.html(html);
+
+                    //Tooltip
+                    positionTooltip(window.event, tooltip);
+                    getInTooltip(tooltip);
+                })
+                .on('mouseout', function(d,i,e) {
+                    //Fuera contorno
+                    this.style.stroke = 'none';
+                    this.style.strokeWidth = '0';
+
+                    //Fuera tooltip
+                    getOutTooltip(tooltip);
+                })
+                .transition()
+                .duration(2000)
+                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
             
             //Urbana
             svg.append("g")
@@ -137,11 +163,38 @@ export function initChart(iframe) {
                 .append("rect")
                 .attr('class', 'prueba')
                 .attr("fill", COLOR_COMP_1)
-                .style('opacity', '0.6')
-                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                .style('opacity', '0.8')
+                .attr("x", x(0))
                 .attr("y", function(d) { return y(d.Edad); })
-                .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                .attr("height", y.bandwidth());
+                .attr("width", 0)
+                .attr("height", y.bandwidth())
+                .on('mouseover', function(d,i,e) {
+                    //Dibujo contorno de la rect
+                    this.style.stroke = '#000';
+                    this.style.strokeWidth = '1';
+
+                    //Texto en tooltip
+                    let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España urbana</p>' + 
+                        '<p class="chart__tooltip--text">% sobre total de la España urbana: ' + numberWithCommas3(parseFloat(d.Valor))+ '%</p>';
+                
+                    tooltip.html(html);
+
+                    //Tooltip
+                    positionTooltip(window.event, tooltip);
+                    getInTooltip(tooltip);
+                })
+                .on('mouseout', function(d,i,e) {
+                    //Fuera contorno
+                    this.style.stroke = 'none';
+                    this.style.strokeWidth = '0';
+
+                    //Fuera tooltip
+                    getOutTooltip(tooltip);
+                })
+                .transition()
+                .duration(2000)
+                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
         }
 
         function setPyramids(types) {
@@ -155,53 +208,137 @@ export function initChart(iframe) {
                 xM.domain([500000,0]);
                 xF.domain([0,500000]);
 
-                if(types.indexOf('rural') != -1) {
-                    svg.append("g")
-                        .attr('class', 'chart-g')
-                        .selectAll("rect")
-                        .data(dataAbsolutoRural)
-                        .enter()
-                        .append("rect")
-                        .attr('class', 'prueba')
-                        .attr("fill", COLOR_PRIMARY_1)
-                        .style('opacity', '0.8')
-                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                        .attr("y", function(d) { return y(d.Edad); })
-                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                        .attr("height", y.bandwidth());
-                }
+                for(let i = types.length - 1; i >= 0; i--) {
 
-                if(types.indexOf('urbano') != -1) {
-                    svg.append("g")
-                        .attr('class', 'chart-g')
-                        .selectAll("rect")
-                        .data(dataAbsolutoUrbano)
-                        .enter()
-                        .append("rect")
-                        .attr('class', 'prueba')
-                        .attr("fill", COLOR_COMP_1)
-                        .style('opacity', '0.5')
-                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                        .attr("y", function(d) { return y(d.Edad); })
-                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                        .attr("height", y.bandwidth());
-                }               
+                    if(types[i] == 'Rural'){
+                        svg.append("g")
+                            .attr('class', 'chart-g')
+                            .selectAll("rect")
+                            .data(dataAbsolutoRural)
+                            .enter()
+                            .append("rect")
+                            .attr('class', 'prueba')
+                            .attr("fill", COLOR_PRIMARY_1)
+                            .style('opacity', '0.8')
+                            .attr("x", x(0))
+                            .attr("y", function(d) { return y(d.Edad); })
+                            .attr("width", 0)
+                            .attr("height", y.bandwidth())
+                            .on('mouseover', function(d,i,e) {
+                                //Dibujo contorno de la rect
+                                this.style.stroke = '#000';
+                                this.style.strokeWidth = '1';
+            
+                                //Texto en tooltip
+                                let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España rural</p>' + 
+                                    '<p class="chart__tooltip--text">Número absoluto de personas: ' + numberWithCommas3(parseFloat(d.Valor))+ '</p>';
+                            
+                                tooltip.html(html);
+            
+                                //Tooltip
+                                positionTooltip(window.event, tooltip);
+                                getInTooltip(tooltip);
+                            })
+                            .on('mouseout', function(d,i,e) {
+                                //Fuera contorno
+                                this.style.stroke = 'none';
+                                this.style.strokeWidth = '0';
+            
+                                //Fuera tooltip
+                                getOutTooltip(tooltip);
+                            })
+                            .transition()
+                            .duration(2000)
+                            .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                            .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
+                    }
 
-                if(types.indexOf('nacional') != -1) {
-                    svg.append("g")
-                        .attr('class', 'chart-g')
-                        .selectAll("rect")
-                        .data(dataAbsolutoNacional)
-                        .enter()
-                        .append("rect")
-                        .attr('class', 'prueba')
-                        .attr("fill", COLOR_ANAG_PRIM_3)
-                        .style('opacity', '0.8')
-                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                        .attr("y", function(d) { return y(d.Edad); })
-                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                        .attr("height", y.bandwidth());
-                }
+                    if(types[i] == 'Urbana') {
+                        svg.append("g")
+                            .attr('class', 'chart-g')
+                            .selectAll("rect")
+                            .data(dataAbsolutoUrbano)
+                            .enter()
+                            .append("rect")
+                            .attr('class', 'prueba')
+                            .attr("fill", COLOR_COMP_1)
+                            .style('opacity', '0.8')
+                            .attr("x", x(0))
+                            .attr("y", function(d) { return y(d.Edad); })
+                            .attr("width", 0)
+                            .attr("height", y.bandwidth())
+                            .on('mouseover', function(d,i,e) {
+                                //Dibujo contorno de la rect
+                                this.style.stroke = '#000';
+                                this.style.strokeWidth = '1';
+            
+                                //Texto en tooltip
+                                let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España urbana</p>' + 
+                                    '<p class="chart__tooltip--text">Número absoluto de personas: ' + numberWithCommas3(parseFloat(d.Valor))+ '</p>';
+                            
+                                tooltip.html(html);
+            
+                                //Tooltip
+                                positionTooltip(window.event, tooltip);
+                                getInTooltip(tooltip);
+                            })
+                            .on('mouseout', function(d,i,e) {
+                                //Fuera contorno
+                                this.style.stroke = 'none';
+                                this.style.strokeWidth = '0';
+            
+                                //Fuera tooltip
+                                getOutTooltip(tooltip);
+                            })
+                            .transition()
+                            .duration(2000)
+                            .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                            .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
+                    }               
+    
+                    if(types[i] == 'Media nacional') {
+                        svg.append("g")
+                            .attr('class', 'chart-g')
+                            .selectAll("rect")
+                            .data(dataAbsolutoNacional)
+                            .enter()
+                            .append("rect")
+                            .attr('class', 'prueba')
+                            .attr("fill", COLOR_ANAG_PRIM_3)
+                            .style('opacity', '0.8')
+                            .attr("x", x(0))
+                            .attr("y", function(d) { return y(d.Edad); })
+                            .attr("width", 0)
+                            .attr("height", y.bandwidth())
+                            .on('mouseover', function(d,i,e) {
+                                //Dibujo contorno de la rect
+                                this.style.stroke = '#000';
+                                this.style.strokeWidth = '1';
+            
+                                //Texto en tooltip
+                                let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España en general</p>' + 
+                                    '<p class="chart__tooltip--text">Número absoluto de personas: ' + numberWithCommas3(parseFloat(d.Valor))+ '</p>';
+                            
+                                tooltip.html(html);
+            
+                                //Tooltip
+                                positionTooltip(window.event, tooltip);
+                                getInTooltip(tooltip);
+                            })
+                            .on('mouseout', function(d,i,e) {
+                                //Fuera contorno
+                                this.style.stroke = 'none';
+                                this.style.strokeWidth = '0';
+            
+                                //Fuera tooltip
+                                getOutTooltip(tooltip);
+                            })
+                            .transition()
+                            .duration(2000)
+                            .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                            .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
+                    }
+                }                
 
             } else {
 
@@ -210,53 +347,137 @@ export function initChart(iframe) {
                 xM.domain([1,0]);
                 xF.domain([0,1]);
 
-                if(types.indexOf('rural') != -1) {
-                    svg.append("g")
-                        .attr('class', 'chart-g')
-                        .selectAll("rect")
-                        .data(dataRelativoRural)
-                        .enter()
-                        .append("rect")
-                        .attr('class', 'prueba')
-                        .attr("fill", COLOR_PRIMARY_1)
-                        .style('opacity', '0.8')
-                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                        .attr("y", function(d) { return y(d.Edad); })
-                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                        .attr("height", y.bandwidth());
-                }
+                for(let i = types.length - 1; i >= 0; i--) {
 
-                if(types.indexOf('urbano') != -1) {
-                    svg.append("g")
-                        .attr('class', 'chart-g')
-                        .selectAll("rect")
-                        .data(dataRelativoUrbano)
-                        .enter()
-                        .append("rect")
-                        .attr('class', 'prueba')
-                        .attr("fill", COLOR_COMP_1)
-                        .style('opacity', '0.5')
-                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                        .attr("y", function(d) { return y(d.Edad); })
-                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                        .attr("height", y.bandwidth());
-                }
-
-                if(types.indexOf('nacional') != -1) {
-                    svg.append("g")
-                        .attr('class', 'chart-g')
-                        .selectAll("rect")
-                        .data(dataRelativoNacional)
-                        .enter()
-                        .append("rect")
-                        .attr('class', 'prueba')
-                        .attr("fill", COLOR_ANAG_PRIM_3)
-                        .style('opacity', '0.5')
-                        .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                        .attr("y", function(d) { return y(d.Edad); })
-                        .attr("width", function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }})
-                        .attr("height", y.bandwidth());
-                }    
+                    if(types[i] == 'Rural') {
+                        svg.append("g")
+                            .attr('class', 'chart-g')
+                            .selectAll("rect")
+                            .data(dataRelativoRural)
+                            .enter()
+                            .append("rect")
+                            .attr('class', 'prueba')
+                            .attr("fill", COLOR_PRIMARY_1)
+                            .style('opacity', '0.8')
+                            .attr("x", x(0))
+                            .attr("y", function(d) { return y(d.Edad); })
+                            .attr("width", 0)
+                            .attr("height", y.bandwidth())
+                            .on('mouseover', function(d,i,e) {
+                                //Dibujo contorno de la rect
+                                this.style.stroke = '#000';
+                                this.style.strokeWidth = '1';
+            
+                                //Texto en tooltip
+                                let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España rural</p>' + 
+                                    '<p class="chart__tooltip--text">% sobre total de la España rural: ' + numberWithCommas3(parseFloat(d.Valor))+ '%</p>';
+                            
+                                tooltip.html(html);
+            
+                                //Tooltip
+                                positionTooltip(window.event, tooltip);
+                                getInTooltip(tooltip);
+                            })
+                            .on('mouseout', function(d,i,e) {
+                                //Fuera contorno
+                                this.style.stroke = 'none';
+                                this.style.strokeWidth = '0';
+            
+                                //Fuera tooltip
+                                getOutTooltip(tooltip);
+                            })
+                            .transition()
+                            .duration(2000)
+                            .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                            .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
+                    }
+    
+                    if(types[i] == 'Urbana') {
+                        svg.append("g")
+                            .attr('class', 'chart-g')
+                            .selectAll("rect")
+                            .data(dataRelativoUrbano)
+                            .enter()
+                            .append("rect")
+                            .attr('class', 'prueba')
+                            .attr("fill", COLOR_COMP_1)
+                            .style('opacity', '0.8')
+                            .attr("x", x(0))
+                            .attr("y", function(d) { return y(d.Edad); })
+                            .attr("width", 0)
+                            .attr("height", y.bandwidth())
+                            .on('mouseover', function(d,i,e) {
+                                //Dibujo contorno de la rect
+                                this.style.stroke = '#000';
+                                this.style.strokeWidth = '1';
+            
+                                //Texto en tooltip
+                                let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España urbana</p>' + 
+                                    '<p class="chart__tooltip--text">% sobre total de la España urbana: ' + numberWithCommas3(parseFloat(d.Valor))+ '%</p>';
+                            
+                                tooltip.html(html);
+            
+                                //Tooltip
+                                positionTooltip(window.event, tooltip);
+                                getInTooltip(tooltip);
+                            })
+                            .on('mouseout', function(d,i,e) {
+                                //Fuera contorno
+                                this.style.stroke = 'none';
+                                this.style.strokeWidth = '0';
+            
+                                //Fuera tooltip
+                                getOutTooltip(tooltip);
+                            })
+                            .transition()
+                            .duration(2000)
+                            .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                            .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
+                    }
+    
+                    if(types[i] == 'Media nacional') {
+                        svg.append("g")
+                            .attr('class', 'chart-g')
+                            .selectAll("rect")
+                            .data(dataRelativoNacional)
+                            .enter()
+                            .append("rect")
+                            .attr('class', 'prueba')
+                            .attr("fill", COLOR_ANAG_PRIM_3)
+                            .style('opacity', '0.8')
+                            .attr("x", x(0))
+                            .attr("y", function(d) { return y(d.Edad); })
+                            .attr("width", 0)
+                            .attr("height", y.bandwidth())
+                            .on('mouseover', function(d,i,e) {
+                                //Dibujo contorno de la rect
+                                this.style.stroke = '#000';
+                                this.style.strokeWidth = '1';
+            
+                                //Texto en tooltip
+                                let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España en general</p>' + 
+                                    '<p class="chart__tooltip--text">% sobre total de la España en general: ' + numberWithCommas3(parseFloat(d.Valor))+ '%</p>';
+                            
+                                tooltip.html(html);
+            
+                                //Tooltip
+                                positionTooltip(window.event, tooltip);
+                                getInTooltip(tooltip);
+                            })
+                            .on('mouseout', function(d,i,e) {
+                                //Fuera contorno
+                                this.style.stroke = 'none';
+                                this.style.strokeWidth = '0';
+            
+                                //Fuera tooltip
+                                getOutTooltip(tooltip);
+                            })
+                            .transition()
+                            .duration(2000)
+                            .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+                            .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
+                    }
+                }     
                 
             }
         }
@@ -299,7 +520,7 @@ export function initChart(iframe) {
 
         //Animación del gráfico
         document.getElementById('replay').addEventListener('click', function() {
-            animateChart();
+            setPyramids(selectedArr);
         });
 
         //Iframe

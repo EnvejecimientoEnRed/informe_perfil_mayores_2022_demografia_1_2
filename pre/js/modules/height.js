@@ -17,7 +17,7 @@ function setChartHeight(iframe) {
         let height = 660; //Altura total del main
         document.getElementsByClassName('chart__viz')[0].style.height = height - titleBlock - logicBlock - footerBlock - footerTop - containerPadding + 'px';
     } else {
-        //document.getElementsByClassName('main')[0].style.height = document.getElementsByClassName('main')[0].clientHeight + 'px';
+        document.getElementsByClassName('main')[0].style.minHeight = document.getElementsByClassName('main')[0].clientHeight + 'px';
         //document.getElementsByClassName('main')[0].style.height = auto;
     }
     pymChild.sendHeight();
