@@ -21,7 +21,7 @@ COLOR_ANAG_PRIM_3 = '#9E3515',
 COLOR_ANAG_COMP_1 = '#1C5A5E';
 let tooltip = d3.select('#tooltip');
 
-export function initChart(iframe) {
+export function initChart() {
     //Creación de otros elementos relativos al gráfico que no requieran lectura previa de datos > Selectores múltiples o simples, timelines, etc 
 
     //Lectura de datos
@@ -539,6 +539,6 @@ export function initChart(iframe) {
         });
 
         //Altura del frame
-        setChartHeight(iframe);
+        setChartHeight();
     });    
 }
