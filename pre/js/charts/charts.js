@@ -133,7 +133,7 @@ export function initChart() {
 
                     //Texto en tooltip
                     let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España rural</p>' + 
-                        '<p class="chart__tooltip--text">% sobre total de la España rural: ' + numberWithCommas3(parseFloat(d.Valor))+ '%</p>';
+                        '<p class="chart__tooltip--text">% sobre total de la España rural: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '%</b></p>';
                 
                     tooltip.html(html);
 
@@ -175,7 +175,7 @@ export function initChart() {
 
                     //Texto en tooltip
                     let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España urbana</p>' + 
-                        '<p class="chart__tooltip--text">% sobre total de la España urbana: ' + numberWithCommas3(parseFloat(d.Valor))+ '%</p>';
+                        '<p class="chart__tooltip--text">% sobre total de la España urbana: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '%</b></p>';
                 
                     tooltip.html(html);
 
@@ -231,7 +231,7 @@ export function initChart() {
             
                                 //Texto en tooltip
                                 let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España rural</p>' + 
-                                    '<p class="chart__tooltip--text">Número absoluto de personas: ' + numberWithCommas3(parseFloat(d.Valor))+ '</p>';
+                                    '<p class="chart__tooltip--text">Número absoluto de personas: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '</b></p>';
                             
                                 tooltip.html(html);
             
@@ -274,7 +274,7 @@ export function initChart() {
             
                                 //Texto en tooltip
                                 let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España urbana</p>' + 
-                                    '<p class="chart__tooltip--text">Número absoluto de personas: ' + numberWithCommas3(parseFloat(d.Valor))+ '</p>';
+                                    '<p class="chart__tooltip--text">Número absoluto de personas: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '</b></p>';
                             
                                 tooltip.html(html);
             
@@ -317,7 +317,7 @@ export function initChart() {
             
                                 //Texto en tooltip
                                 let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España en general</p>' + 
-                                    '<p class="chart__tooltip--text">Número absoluto de personas: ' + numberWithCommas3(parseFloat(d.Valor))+ '</p>';
+                                    '<p class="chart__tooltip--text">Número absoluto de personas: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '</b></p>';
                             
                                 tooltip.html(html);
             
