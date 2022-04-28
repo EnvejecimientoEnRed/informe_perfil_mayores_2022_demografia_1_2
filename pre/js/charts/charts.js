@@ -56,7 +56,7 @@ export function initChart() {
         let dataRelativoNacional = data.filter(function(item) { if (item.Tipo == 'nacional' && item.Data == 'Porcentajes') { return item; }});
 
         ///Valores iniciales de altura, anchura y márgenes > Primer desarrollo solo con Valores absolutos
-        let margin = {top: 5, right: 25, bottom: 20, left: 70},
+        let margin = {top: 12.5, right: 25, bottom: 25, left: 70},
             width = document.getElementById('chart').clientWidth - margin.left - margin.right,
             height = width * 0.67 - margin.top - margin.bottom;
 
