@@ -29,10 +29,10 @@ export function initChart() {
         if (error) throw error;
 
         //SELECCIÓN DE ELEMENTOS
-        let selectedArr = ['Urbana','Rural'];
+        let selectedArr = ['Nacional'];
         let mySellect = sellect("#my-element", {
-            originList: ['Urbana','Rural','Nacional'],
-            destinationList: ['Urbana','Rural'],
+            originList: ['Nacional','Urbana','Rural'],
+            destinationList: ['Nacional'],
             onInsert: onChange,
             onRemove: onChange
         });
@@ -112,28 +112,27 @@ export function initChart() {
             .call(yAxis);
 
         function initPyramid() {
-            //Rural
+            //Nacional
             svg.append("g")
                 .attr('class', 'chart-g')
                 .selectAll("rect")
-                .data(dataRelativoRural)
+                .data(dataRelativoNacional)
                 .enter()
                 .append("rect")
                 .attr('class', 'prueba')
-                .attr("fill", COLOR_PRIMARY_1)
-                .style('opacity', '0.8')
+                .attr("fill", "transparent")
+                .attr("stroke", COLOR_ANAG_PRIM_3)
                 .attr("x", x(0))
                 .attr("y", function(d) { return y(d.Edad); })
                 .attr("width", 0)
                 .attr("height", y.bandwidth())
                 .on('mouseover', function(d,i,e) {
                     //Dibujo contorno de la rect
-                    this.style.stroke = '#000';
-                    this.style.strokeWidth = '1';
+                    this.style.strokeWidth = '2';
 
                     //Texto en tooltip
-                    let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España rural</p>' + 
-                        '<p class="chart__tooltip--text">% sobre total de la España rural: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '%</b></p>';
+                    let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España en general</p>' + 
+                        '<p class="chart__tooltip--text">% sobre total de la España en general: ' + numberWithCommas3(parseFloat(d.Valor))+ '%</p>';
                 
                     tooltip.html(html);
 
@@ -143,8 +142,7 @@ export function initChart() {
                 })
                 .on('mouseout', function(d,i,e) {
                     //Fuera contorno
-                    this.style.stroke = 'none';
-                    this.style.strokeWidth = '0';
+                    this.style.strokeWidth = '1';
 
                     //Fuera tooltip
                     getOutTooltip(tooltip);
@@ -153,48 +151,90 @@ export function initChart() {
                 .duration(2000)
                 .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
                 .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
+
+            // //Rural
+            // svg.append("g")
+            //     .attr('class', 'chart-g')
+            //     .selectAll("rect")
+            //     .data(dataRelativoRural)
+            //     .enter()
+            //     .append("rect")
+            //     .attr('class', 'prueba')
+            //     .attr("fill", COLOR_PRIMARY_1)
+            //     .style('opacity', '0.8')
+            //     .attr("x", x(0))
+            //     .attr("y", function(d) { return y(d.Edad); })
+            //     .attr("width", 0)
+            //     .attr("height", y.bandwidth())
+            //     .on('mouseover', function(d,i,e) {
+            //         //Dibujo contorno de la rect
+            //         this.style.stroke = '#000';
+            //         this.style.strokeWidth = '1';
+
+            //         //Texto en tooltip
+            //         let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España rural</p>' + 
+            //             '<p class="chart__tooltip--text">% sobre total de la España rural: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '%</b></p>';
+                
+            //         tooltip.html(html);
+
+            //         //Tooltip
+            //         positionTooltip(window.event, tooltip);
+            //         getInTooltip(tooltip);
+            //     })
+            //     .on('mouseout', function(d,i,e) {
+            //         //Fuera contorno
+            //         this.style.stroke = 'none';
+            //         this.style.strokeWidth = '0';
+
+            //         //Fuera tooltip
+            //         getOutTooltip(tooltip);
+            //     })
+            //     .transition()
+            //     .duration(2000)
+            //     .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+            //     .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
             
-            //Urbana
-            svg.append("g")
-                .attr('class', 'chart-g')
-                .selectAll("rect")
-                .data(dataRelativoUrbano)
-                .enter()
-                .append("rect")
-                .attr('class', 'prueba')
-                .attr("fill", COLOR_COMP_1)
-                .style('opacity', '0.8')
-                .attr("x", x(0))
-                .attr("y", function(d) { return y(d.Edad); })
-                .attr("width", 0)
-                .attr("height", y.bandwidth())
-                .on('mouseover', function(d,i,e) {
-                    //Dibujo contorno de la rect
-                    this.style.stroke = '#000';
-                    this.style.strokeWidth = '1';
+            // //Urbana
+            // svg.append("g")
+            //     .attr('class', 'chart-g')
+            //     .selectAll("rect")
+            //     .data(dataRelativoUrbano)
+            //     .enter()
+            //     .append("rect")
+            //     .attr('class', 'prueba')
+            //     .attr("fill", COLOR_COMP_1)
+            //     .style('opacity', '0.8')
+            //     .attr("x", x(0))
+            //     .attr("y", function(d) { return y(d.Edad); })
+            //     .attr("width", 0)
+            //     .attr("height", y.bandwidth())
+            //     .on('mouseover', function(d,i,e) {
+            //         //Dibujo contorno de la rect
+            //         this.style.stroke = '#000';
+            //         this.style.strokeWidth = '1';
 
-                    //Texto en tooltip
-                    let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España urbana</p>' + 
-                        '<p class="chart__tooltip--text">% sobre total de la España urbana: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '%</b></p>';
+            //         //Texto en tooltip
+            //         let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España urbana</p>' + 
+            //             '<p class="chart__tooltip--text">% sobre total de la España urbana: <b>' + numberWithCommas3(parseFloat(d.Valor))+ '%</b></p>';
                 
-                    tooltip.html(html);
+            //         tooltip.html(html);
 
-                    //Tooltip
-                    positionTooltip(window.event, tooltip);
-                    getInTooltip(tooltip);
-                })
-                .on('mouseout', function(d,i,e) {
-                    //Fuera contorno
-                    this.style.stroke = 'none';
-                    this.style.strokeWidth = '0';
+            //         //Tooltip
+            //         positionTooltip(window.event, tooltip);
+            //         getInTooltip(tooltip);
+            //     })
+            //     .on('mouseout', function(d,i,e) {
+            //         //Fuera contorno
+            //         this.style.stroke = 'none';
+            //         this.style.strokeWidth = '0';
 
-                    //Fuera tooltip
-                    getOutTooltip(tooltip);
-                })
-                .transition()
-                .duration(2000)
-                .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
-                .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
+            //         //Fuera tooltip
+            //         getOutTooltip(tooltip);
+            //     })
+            //     .transition()
+            //     .duration(2000)
+            //     .attr("x", function(d) { if(d.Sexo == 'Hombres') { return xM(d.Valor); } else { return xF(0); }})
+            //     .attr('width', function(d) { if(d.Sexo == 'Hombres') { return xM(0) - xM(d.Valor); } else { return xF(d.Valor) - xF(0); }});
         }
 
         function setPyramids(types) {
@@ -219,7 +259,6 @@ export function initChart() {
                             .append("rect")
                             .attr('class', 'prueba')
                             .attr("fill", COLOR_PRIMARY_1)
-                            .style('opacity', '0.8')
                             .attr("x", x(0))
                             .attr("y", function(d) { return y(d.Edad); })
                             .attr("width", 0)
@@ -262,7 +301,6 @@ export function initChart() {
                             .append("rect")
                             .attr('class', 'prueba')
                             .attr("fill", COLOR_COMP_1)
-                            .style('opacity', '0.8')
                             .attr("x", x(0))
                             .attr("y", function(d) { return y(d.Edad); })
                             .attr("width", 0)
@@ -304,16 +342,15 @@ export function initChart() {
                             .enter()
                             .append("rect")
                             .attr('class', 'prueba')
-                            .attr("fill", COLOR_ANAG_PRIM_3)
-                            .style('opacity', '0.8')
+                            .attr("fill", "transparent")
+                            .attr("stroke", COLOR_ANAG_PRIM_3)
                             .attr("x", x(0))
                             .attr("y", function(d) { return y(d.Edad); })
                             .attr("width", 0)
                             .attr("height", y.bandwidth())
                             .on('mouseover', function(d,i,e) {
                                 //Dibujo contorno de la rect
-                                this.style.stroke = '#000';
-                                this.style.strokeWidth = '1';
+                                this.style.strokeWidth = '2';
             
                                 //Texto en tooltip
                                 let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España en general</p>' + 
@@ -327,8 +364,7 @@ export function initChart() {
                             })
                             .on('mouseout', function(d,i,e) {
                                 //Fuera contorno
-                                this.style.stroke = 'none';
-                                this.style.strokeWidth = '0';
+                                this.style.strokeWidth = '1';
             
                                 //Fuera tooltip
                                 getOutTooltip(tooltip);
@@ -358,7 +394,6 @@ export function initChart() {
                             .append("rect")
                             .attr('class', 'prueba')
                             .attr("fill", COLOR_PRIMARY_1)
-                            .style('opacity', '0.8')
                             .attr("x", x(0))
                             .attr("y", function(d) { return y(d.Edad); })
                             .attr("width", 0)
@@ -401,7 +436,6 @@ export function initChart() {
                             .append("rect")
                             .attr('class', 'prueba')
                             .attr("fill", COLOR_COMP_1)
-                            .style('opacity', '0.8')
                             .attr("x", x(0))
                             .attr("y", function(d) { return y(d.Edad); })
                             .attr("width", 0)
@@ -443,16 +477,15 @@ export function initChart() {
                             .enter()
                             .append("rect")
                             .attr('class', 'prueba')
-                            .attr("fill", COLOR_ANAG_PRIM_3)
-                            .style('opacity', '0.8')
+                            .attr("fill", "transparent")
+                            .attr("stroke", COLOR_ANAG_PRIM_3)
                             .attr("x", x(0))
                             .attr("y", function(d) { return y(d.Edad); })
                             .attr("width", 0)
                             .attr("height", y.bandwidth())
                             .on('mouseover', function(d,i,e) {
                                 //Dibujo contorno de la rect
-                                this.style.stroke = '#000';
-                                this.style.strokeWidth = '1';
+                                this.style.strokeWidth = '2';
             
                                 //Texto en tooltip
                                 let html = '<p class="chart__tooltip--title">' + d.Sexo + ' (' + d.Edad + ' años) en España en general</p>' + 
@@ -466,8 +499,7 @@ export function initChart() {
                             })
                             .on('mouseout', function(d,i,e) {
                                 //Fuera contorno
-                                this.style.stroke = 'none';
-                                this.style.strokeWidth = '0';
+                                this.style.strokeWidth = '1';
             
                                 //Fuera tooltip
                                 getOutTooltip(tooltip);
